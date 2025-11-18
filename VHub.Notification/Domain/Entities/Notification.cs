@@ -2,9 +2,9 @@
 
 namespace Domain.Entities;
 
-public class Notification
+public class Notification : IEntity<Guid>
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public Guid Id { get; set; } = Guid.NewGuid();
     public NotificationTypeEnum Type { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
