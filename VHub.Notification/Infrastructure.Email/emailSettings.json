@@ -1,0 +1,11 @@
+{
+  "SmtpSettings": {
+    "Server": "smtp.gmail.com",
+    "Port": 587,
+    "Username": "your-email@gmail.com",
+    "Password": "your-app-password",
+    "UseSsl": true,
+    "SenderName": "Notification Service",
+    "SenderEmail": "your-email@gmail.com"
+  }
+}
