@@ -29,7 +29,6 @@ public class EmailNotificationStrategy : IEmailNotificationStrategy
         string content,
         string recipient,
         string subject = null,
-        Dictionary<string, object> metadata = null,
         CancellationToken cancellationToken = default)
     {
         try

@@ -1,4 +1,5 @@
-﻿using Application.Contracts.Responses;
+﻿using Application.Contracts.Requests;
+using Application.Contracts.Responses;
 using MediatR;
 
 namespace Application.Contracts.Commands;
@@ -10,14 +11,13 @@ public class SendNotificationCommand : IRequest<SendNotificationResponse>
     public string Content { get; set; }
     public string Recipient { get; set; }
     public string Subject { get; set; } // Для email
-    public Dictionary<string, object> Metadata { get; set; } = new();
 
-    public SendNotificationCommand(string type, string title, string content, string recipient, string subject = null)
+    public SendNotificationCommand(SendNotificationRequest request)
     {
-        Type = type;
-        Title = title;
-        Content = content;
-        Recipient = recipient;
-        Subject = subject;
+        Type = request.Type;
+        Title = request.Title;
+        Content = request.Content;
+        Recipient = request.Recipient;
+        Subject = request.Subject;
     }
 }

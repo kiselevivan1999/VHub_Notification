@@ -1,11 +1,11 @@
 ﻿namespace Application.Contracts.Responses;
 
-public class SendNotificationResponse()
+public class SendNotificationResponse
 {
     /// <summary>
     /// Идентификатор отправленного уведомлений
     /// </summary>
-    public required string NotificationId { get; set; }
+    public string NotificationId { get; set;}
     /// <summary>
     /// Статус: true - доставлено, false - не доставлено
     /// </summary>
@@ -15,7 +15,11 @@ public class SendNotificationResponse()
     /// </summary>
     public string? Message { get; set; }
 
-    public SendNotificationResponse(string NotificationId, 
-        bool Success, string Message)
-    { }
+    public SendNotificationResponse(string notificationId, 
+        bool success, string message)
+    {
+        NotificationId = notificationId;
+        Success = success;
+        Message = message;
+    }
 }
