@@ -28,51 +28,51 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
         SendNotificationCommand command,
         CancellationToken cancellationToken)
     {
-        var notificationId = Guid.NewGuid();
+        //TODO: Для Type создать перечисление из строк
+        var notification = new Notification
+            (
+                 command.Type,
+                command.Title,
+                command.Content,
+                command.Recipient
+            );
 
         try
         {
             // Сохраняем в БД как Pending
-            var notification = new Notification
-            {
-                Id = notificationId,
-                Type = command.Type,
-                Title = command.Title,
-                Content = command.Content,
-                Recipient = command.Recipient,
-                Status = NotificationStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _unitOfWork.Notifications.AddAsync(notification, cancellationToken);
+            await _unitOfWork.NotificationRepository.AddAsync(notification, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Отправляем уведомление
             if (!_factory.Supports(command.Type))
-                return await FailNotification(notificationId, $"Unsupported type: {command.Type}");
+                return await FailNotification(notification.Id, $"Unsupported type: {command.Type}");
 
             var strategy = _factory.Create(command.Type);
             var success = await strategy.SendAsync(
                 command.Title, command.Content, command.Recipient,
-                command.Subject, command.Metadata, cancellationToken);
-            // Обновляем статус в БД
-            notification.Status = success ? NotificationStatus.Sent : NotificationStatus.Failed;
-            notification.SentAt = success ? DateTime.UtcNow : null;
+                command.Subject, cancellationToken);
 
-            await _unitOfWork.Notifications.UpdateAsync(notification, cancellationToken);
+            // Обновляем статус в БД
+            if (success)
+                notification.SetSuccess();
+            else
+                notification.SetFailed();
+
+            _unitOfWork.NotificationRepository.Update(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new SendNotificationResponse(
-                notificationId,
+                notification.Id,
                 success,
                 success ? "Sent" : "Failed");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process notification {NotificationId}", notificationId);
-            return new SendNotificationResponse(notificationId, false, ex.Message);
+            _logger.LogError(ex, "Failed to process notification {NotificationId}", notification.Id);
+            return new SendNotificationResponse(notification.Id, false, ex.Message);
         }
     }
-    private async Task<SendNotificationResponse> FailNotification(string notificationId, string error)
+    private async Task<SendNotificationResponse> FailNotification(Guid notificationId, string error)
     {
         _logger.LogWarning("Notification failed: {Error}", error);
         return new SendNotificationResponse(notificationId, false, error);

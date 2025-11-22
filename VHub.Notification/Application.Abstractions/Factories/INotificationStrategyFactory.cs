@@ -1,9 +1,10 @@
 ﻿using Application.Abstractions.Strategies;
+using Domain.Enums;
 
 namespace Application.Abstractions.Factories;
 
 public interface INotificationStrategyFactory
 {
-    INotificationStrategy Create(string notificationType);
-    bool Supports(string notificationType);
+    INotificationStrategy Create(NotificationTypeEnum notificationType);
+    bool Supports(NotificationTypeEnum notificationType);
 }

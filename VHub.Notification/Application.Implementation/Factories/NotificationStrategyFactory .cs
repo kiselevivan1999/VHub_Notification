@@ -1,34 +1,27 @@
 ﻿using Application.Abstractions.Factories;
 using Application.Abstractions.Strategies;
-using Microsoft.Extensions.DependencyInjection;
+using Domain.Enums;
 
 namespace Application.Implementation.Factories;
 
 public class NotificationStrategyFactory : INotificationStrategyFactory
 {
-    private readonly IServiceProvider _serviceProvider;
-    private readonly Dictionary<string, Type> _strategies;
+    private readonly Dictionary<NotificationTypeEnum, INotificationStrategy> _strategies;
 
-    public NotificationStrategyFactory(IServiceProvider serviceProvider)
+    public NotificationStrategyFactory(IEnumerable<INotificationStrategy> strategies)
     {
-        _serviceProvider = serviceProvider;
-        _strategies = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        _strategies = strategies.ToDictionary(s => s.Type);
     }
 
-    public INotificationStrategy Create(string notificationType)
+    public INotificationStrategy Create(NotificationTypeEnum notificationType)
     {
-        if (!_strategies.TryGetValue(notificationType, out var strategyType))
-        {
-            throw new NotSupportedException($"Notification type '{notificationType}' is not supported");
-        }
+        if (_strategies.TryGetValue(notificationType, out var strategy))
+            return strategy;
 
-        return (INotificationStrategy)_serviceProvider.GetRequiredService(strategyType);
+        throw new NotSupportedException($"Уведомления типа '{notificationType}' не поддерживается");
     }
 
-    public bool Supports(string notificationType) => _strategies.ContainsKey(notificationType);
+    public bool Supports(NotificationTypeEnum notificationType) 
+        => _strategies.ContainsKey(notificationType);
 
-    public void RegisterStrategy<TStrategy>(string notificationType) where TStrategy : INotificationStrategy
-    {
-        _strategies[notificationType] = typeof(TStrategy);
-    }
 }

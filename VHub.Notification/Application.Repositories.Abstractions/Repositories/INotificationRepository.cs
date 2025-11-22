@@ -2,6 +2,6 @@
 
 namespace Application.Repositories.Abstractions.Repositories;
 
-public interface IEmailNotificationRepository : IGenericRepository<EmailNotification, Guid>
+public interface INotificationRepository : IGenericRepository<Notification, Guid>
 {
 }

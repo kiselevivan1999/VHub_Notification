@@ -5,7 +5,7 @@ public class SendNotificationResponse
     /// <summary>
     /// Идентификатор отправленного уведомлений
     /// </summary>
-    public string NotificationId { get; set;}
+    public Guid NotificationId { get; set;}
     /// <summary>
     /// Статус: true - доставлено, false - не доставлено
     /// </summary>
@@ -15,7 +15,7 @@ public class SendNotificationResponse
     /// </summary>
     public string? Message { get; set; }
 
-    public SendNotificationResponse(string notificationId, 
+    public SendNotificationResponse(Guid notificationId, 
         bool success, string message)
     {
         NotificationId = notificationId;

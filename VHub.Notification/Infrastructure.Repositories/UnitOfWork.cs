@@ -7,19 +7,19 @@ namespace Infrastructure.Repositories;
 
 internal class UnitOfWork : IUnitOfWork
 {
-    private IEmailNotificationRepository _emailNotificationRepository;
+    private INotificationRepository _notificationRepository;
     private NotificationDbContext _context;
 
-    public IEmailNotificationRepository EmailNotificationRepository => _emailNotificationRepository;
+    public INotificationRepository NotificationRepository => _notificationRepository;
 
     public UnitOfWork(NotificationDbContext context)
     {
         _context = context;
-        _emailNotificationRepository = new EmailNotificationRepository(context);
+        _notificationRepository = new NotificationRepository(context);
     }
 
-    public async Task SaveChangesAsync()
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
     {
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

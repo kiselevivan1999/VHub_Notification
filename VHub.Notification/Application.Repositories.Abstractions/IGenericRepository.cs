@@ -73,7 +73,7 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// </summary>
     /// <param name="entity"> Сущность для добавления. </param>
     /// <returns> Добавленная сущность. </returns>
-    Task<T> AddAsync(T entity);
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken);
 
     /// <summary>
     /// Добавить в базу массив сущностей.
@@ -85,7 +85,7 @@ public interface IGenericRepository<T, TPrimaryKey> where T : IEntity<TPrimaryKe
     /// Добавить в базу массив сущностей.
     /// </summary>
     /// <param name="entities"> Массив сущностей. </param>
-    Task AddRangeAsync(ICollection<T> entities);
+    Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken);
 
     /// <summary>
     /// Сохранить изменения.

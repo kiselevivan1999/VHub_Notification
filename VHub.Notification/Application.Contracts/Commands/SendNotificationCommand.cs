@@ -1,16 +1,17 @@
 ﻿using Application.Contracts.Requests;
 using Application.Contracts.Responses;
+using Domain.Enums;
 using MediatR;
 
 namespace Application.Contracts.Commands;
 
 public class SendNotificationCommand : IRequest<SendNotificationResponse>
 {
-    public string Type { get; set; } // Email, Telegram, Push, SMS
+    public NotificationTypeEnum Type { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
     public string Recipient { get; set; }
-    public string Subject { get; set; } // Для email
+    public string Subject { get; set; }
 
     public SendNotificationCommand(SendNotificationRequest request)
     {

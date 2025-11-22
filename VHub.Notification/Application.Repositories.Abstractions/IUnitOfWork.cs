@@ -4,6 +4,6 @@ namespace Application.Repositories.Abstractions;
 
 public interface IUnitOfWork
 {
-    IEmailNotificationRepository EmailNotificationRepository { get; }
-    Task SaveChangesAsync();
+    INotificationRepository NotificationRepository { get; }
+    Task SaveChangesAsync(CancellationToken cancellationToken);
 }

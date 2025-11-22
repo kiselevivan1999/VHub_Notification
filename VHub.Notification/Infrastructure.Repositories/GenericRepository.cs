@@ -41,7 +41,7 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// <returns> Cущность. </returns>
     public virtual async Task<T> GetAsync(TPrimaryKey id, CancellationToken cancellationToken)
     {
-        return await _entitySet.FindAsync((object)id);
+        return await _entitySet.FindAsync(id);
     }
 
     #endregion
@@ -89,9 +89,9 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// </summary>
     /// <param name="entity"> Сущность для добавления. </param>
     /// <returns> Добавленная сущность. </returns>
-    public virtual async Task<T> AddAsync(T entity)
+    public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken)
     {
-        return (await _entitySet.AddAsync(entity)).Entity;
+        return (await _entitySet.AddAsync(entity, cancellationToken)).Entity;
     }
 
     /// <summary>
@@ -108,13 +108,12 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     /// Добавить в базу массив сущностей.
     /// </summary>
     /// <param name="entities"> Массив сущностей. </param>
-    public virtual async Task AddRangeAsync(ICollection<T> entities)
+    public virtual async Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken)
     {
         if (entities == null || !entities.Any())
-        {
             return;
-        }
-        await _entitySet.AddRangeAsync(entities);
+        
+        await _entitySet.AddRangeAsync(entities, cancellationToken);
     }
 
     #endregion
@@ -143,9 +142,8 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     {
         var obj = _entitySet.Find(id);
         if (obj == null)
-        {
             return false;
-        }
+        
         _entitySet.Remove(obj);
         return true;
     }
@@ -158,9 +156,8 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     public virtual bool Delete(T entity)
     {
         if (entity == null)
-        {
             return false;
-        }
+        
         Context.Entry(entity).State = EntityState.Deleted;
         return true;
     }
@@ -173,9 +170,8 @@ internal abstract class GenericRepository<T, TPrimaryKey> : IGenericRepository<T
     public virtual bool DeleteRange(ICollection<T> entities)
     {
         if (entities == null || !entities.Any())
-        {
             return false;
-        }
+
         _entitySet.RemoveRange(entities);
         return true;
     }

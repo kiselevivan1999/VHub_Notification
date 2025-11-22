@@ -2,5 +2,6 @@
 
 public enum NotificationTypeEnum
 {
-    Email = 1
+    Email = 1,
+    Telegram = 2
 }

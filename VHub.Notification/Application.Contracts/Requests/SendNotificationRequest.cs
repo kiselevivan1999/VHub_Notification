@@ -1,8 +1,10 @@
-﻿namespace Application.Contracts.Requests;
+﻿using Domain.Enums;
+
+namespace Application.Contracts.Requests;
 
 public class SendNotificationRequest
 {
-    public string Type { get; set; } = "Email";
+    public NotificationTypeEnum Type { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
     public string Recipient { get; set; }

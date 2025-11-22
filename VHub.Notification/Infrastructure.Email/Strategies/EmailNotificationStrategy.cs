@@ -1,17 +1,18 @@
 ﻿using Application.Abstractions.Strategies;
+using Domain.Enums;
 using Infrastructure.Email.Settings;
-using Microsoft.Extensions.Logging;
-using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MimeKit;
 
 
 namespace Infrastructure.Email.Strategies;
 
 public class EmailNotificationStrategy : IEmailNotificationStrategy
 {
-    public string Type => "Email";
+    public NotificationTypeEnum Type => NotificationTypeEnum.Email;
 
     private readonly SmtpSettings _settings;
     private readonly ILogger<EmailNotificationStrategy> _logger;
