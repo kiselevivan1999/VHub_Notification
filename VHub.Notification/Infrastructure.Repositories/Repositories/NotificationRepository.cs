@@ -1,6 +1,6 @@
 ﻿using Application.Repositories.Abstractions.Repositories;
 using Domain.Entities;
-using Infrastructure.EntityFramework;
+using Infrastructure.EntityFramework.Contexts;
 
 namespace Infrastructure.Repositories.Repositories;
 

@@ -3,6 +3,7 @@ using Application.Contracts.Commands;
 using Application.Contracts.Responses;
 using Application.Repositories.Abstractions;
 using Domain.Entities;
+using Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -28,53 +29,55 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
         SendNotificationCommand command,
         CancellationToken cancellationToken)
     {
-        //TODO: Для Type создать перечисление из строк
         var notification = new Notification
             (
-                 command.Type,
+                command.Type,
                 command.Title,
                 command.Content,
                 command.Recipient
             );
 
-        try
+        try 
         {
             // Сохраняем в БД как Pending
             await _unitOfWork.NotificationRepository.AddAsync(notification, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // Отправляем уведомление
-            if (!_factory.Supports(command.Type))
-                return await FailNotification(notification.Id, $"Unsupported type: {command.Type}");
-
-            var strategy = _factory.Create(command.Type);
-            var success = await strategy.SendAsync(
-                command.Title, command.Content, command.Recipient,
-                command.Subject, cancellationToken);
-
-            // Обновляем статус в БД
-            if (success)
-                notification.SetSuccess();
-            else
-                notification.SetFailed();
-
-            _unitOfWork.NotificationRepository.Update(notification);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return new SendNotificationResponse(
-                notification.Id,
-                success,
-                success ? "Sent" : "Failed");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process notification {NotificationId}", notification.Id);
-            return new SendNotificationResponse(notification.Id, false, ex.Message);
+            throw new InternalServerException("Ошибка сохранения уведомления.", ex.Message);
         }
-    }
-    private async Task<SendNotificationResponse> FailNotification(Guid notificationId, string error)
-    {
-        _logger.LogWarning("Notification failed: {Error}", error);
-        return new SendNotificationResponse(notificationId, false, error);
+
+        if (!_factory.Supports(command.Type))
+            throw new NotAllowedException($"Метод не поддерживает тип {command.Type}");
+
+        //Осуществляем отправку уведомления
+        var strategy = _factory.Create(command.Type);
+        var success = await strategy.SendAsync(
+                command.Title, command.Content, command.Recipient,
+                command.Subject, cancellationToken);
+
+        // Обновляем статус уведомления
+        if (success)
+            notification.SetSuccess();
+        else
+            notification.SetFailed();
+
+        try 
+        {
+            _unitOfWork.NotificationRepository.Update(notification);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (Exception ex) 
+        {
+            throw new InternalServerException("Ошибка обновления уведомления.", ex.Message);
+        }
+
+
+        return new SendNotificationResponse(
+                notification.Id,
+                success,
+                success ? "Sent" : "Failed");
+
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("[api/controller]")]
+[Route("api/[controller]")]
 public class NotificationController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -13,6 +13,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Application.Contracts\Application.Contracts.csproj" />
+    <ProjectReference Include="..\Application.Implementation\Application.Implementation.csproj" />
+    <ProjectReference Include="..\Infrastructure.Email\Infrastructure.Email.csproj" />
+    <ProjectReference Include="..\Infrastructure.EntityFramework\Infrastructure.EntityFramework.csproj" />
+    <ProjectReference Include="..\Infrastructure.Repositories\Infrastructure.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

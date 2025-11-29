@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
-namespace Infrastructure.EntityFramework;
+namespace Infrastructure.EntityFramework.Contexts;
 
 public class NotificationDbContext : DbContext
 {
