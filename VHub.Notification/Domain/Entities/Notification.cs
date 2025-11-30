@@ -35,7 +35,7 @@ public class Notification : IEntity<Guid>
     /// <summary>
     /// Статус доставки
     /// </summary>
-    public NotificationStatusEnum Status { get; set; }
+    public NotificationStatusEnum Status { get; private set; }
 
     protected Notification() { }
 
