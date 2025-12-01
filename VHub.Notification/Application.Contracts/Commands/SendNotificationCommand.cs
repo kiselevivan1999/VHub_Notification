@@ -11,7 +11,6 @@ public class SendNotificationCommand : IRequest<SendNotificationResponse>
     public string Title { get; set; }
     public string Content { get; set; }
     public string Recipient { get; set; }
-    public string Subject { get; set; }
 
     public SendNotificationCommand(SendNotificationRequest request)
     {
@@ -19,6 +18,5 @@ public class SendNotificationCommand : IRequest<SendNotificationResponse>
         Title = request.Title;
         Content = request.Content;
         Recipient = request.Recipient;
-        Subject = request.Subject;
     }
 }

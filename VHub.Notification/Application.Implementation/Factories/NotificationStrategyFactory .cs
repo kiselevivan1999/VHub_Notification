@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Factories;
 using Application.Abstractions.Strategies;
 using Domain.Enums;
+using Domain.Exceptions;
 
 namespace Application.Implementation.Factories;
 
@@ -18,10 +19,7 @@ public class NotificationStrategyFactory : INotificationStrategyFactory
         if (_strategies.TryGetValue(notificationType, out var strategy))
             return strategy;
 
-        throw new NotSupportedException($"Уведомления типа '{notificationType}' не поддерживается");
+        throw new NotAllowedException($"Уведомления типа '{notificationType}' не поддерживается");
     }
-
-    public bool Supports(NotificationTypeEnum notificationType) 
-        => _strategies.ContainsKey(notificationType);
 
 }

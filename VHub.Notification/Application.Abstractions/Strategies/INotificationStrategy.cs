@@ -5,6 +5,6 @@ namespace Application.Abstractions.Strategies;
 public interface INotificationStrategy
 {
     NotificationTypeEnum Type { get; }
-    Task<bool> SendAsync(string title, string content, string recipient, string subject = null, 
+    Task<bool> SendAsync(string title, string content, string recipient, 
         CancellationToken cancellationToken = default);
 }

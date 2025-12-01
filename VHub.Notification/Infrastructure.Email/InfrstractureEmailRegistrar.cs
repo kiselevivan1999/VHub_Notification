@@ -11,8 +11,9 @@ public static class InfrstractureEmailRegistrar
     public static IServiceCollection AddEmailInfrastructure(this IServiceCollection services, 
         IConfiguration configuration)
     {
+        var a = configuration.GetSection("SmtpSettings");
         // Настройки
-        services.Configure<SmtpSettings>(options => configuration.GetSection("SmtpSettings"));
+        services.Configure<SmtpSettings>(configuration.GetSection("SmtpSettings"));
 
         // Стратегия
         services.AddScoped<EmailNotificationStrategy>();

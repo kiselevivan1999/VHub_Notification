@@ -5,24 +5,21 @@ using Application.Repositories.Abstractions;
 using Domain.Entities;
 using Domain.Exceptions;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace Application.Implementation.Handlers;
 
-public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCommand, SendNotificationResponse>
+public class SendNotificationCommandHandler 
+    : IRequestHandler<SendNotificationCommand, SendNotificationResponse>
 {
     private readonly INotificationStrategyFactory _factory;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<SendNotificationCommandHandler> _logger;
 
     public SendNotificationCommandHandler(
         IUnitOfWork unitOfWork,
-        INotificationStrategyFactory factory,
-        ILogger<SendNotificationCommandHandler> logger)
+        INotificationStrategyFactory factory)
     {
         _unitOfWork = unitOfWork;
         _factory = factory;
-        _logger = logger;
     }
 
     public async Task<SendNotificationResponse> Handle(
@@ -48,14 +45,10 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
             throw new InternalServerException("Ошибка сохранения уведомления.", ex.Message);
         }
 
-        if (!_factory.Supports(command.Type))
-            throw new NotAllowedException($"Метод не поддерживает тип {command.Type}");
-
         //Осуществляем отправку уведомления
         var strategy = _factory.Create(command.Type);
         var success = await strategy.SendAsync(
-                command.Title, command.Content, command.Recipient,
-                command.Subject, cancellationToken);
+                command.Title, command.Content, command.Recipient, cancellationToken);
 
         // Обновляем статус уведомления
         if (success)
@@ -65,12 +58,14 @@ public class SendNotificationCommandHandler : IRequestHandler<SendNotificationCo
 
         try 
         {
+            //Сохранем в базу с обновленным статусом
             _unitOfWork.NotificationRepository.Update(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         catch (Exception ex) 
         {
-            throw new InternalServerException("Ошибка обновления уведомления.", ex.Message);
+            var errorMessage = $"Ошибка обновления уведомления {notification.Id}.";
+            throw new InternalServerException(errorMessage, ex.Message);
         }
 
 

@@ -1,9 +1,9 @@
 ﻿using Application.Abstractions.Strategies;
 using Domain.Enums;
+using Domain.Exceptions;
 using Infrastructure.Email.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
@@ -15,70 +15,56 @@ public class EmailNotificationStrategy : IEmailNotificationStrategy
     public NotificationTypeEnum Type => NotificationTypeEnum.Email;
 
     private readonly SmtpSettings _settings;
-    private readonly ILogger<EmailNotificationStrategy> _logger;
 
-    public EmailNotificationStrategy(
-        IOptions<SmtpSettings> settings,
-        ILogger<EmailNotificationStrategy> logger)
+    public EmailNotificationStrategy(IOptions<SmtpSettings> settings)
     {
         _settings = settings.Value;
-        _logger = logger;
     }
 
     public async Task<bool> SendAsync(
         string title,
         string content,
         string recipient,
-        string subject = null,
         CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(_settings.Email))
+            throw new BadRequestException("Не указан отправитель email уведомления.");
+        
+        var message = CreateEmailMessage(title, content, recipient);
+        using var client = new SmtpClient();
+
         try
         {
-            var message = CreateEmailMessage(title, content, recipient, subject);
-
-            using var client = new SmtpClient();
-
             await client.ConnectAsync(_settings.Server, _settings.Port, GetSecureSocketOptions(), cancellationToken);
-
-            if (!string.IsNullOrEmpty(_settings.Username))
-            {
-                await client.AuthenticateAsync(_settings.Username, _settings.Password, cancellationToken);
-            }
+            await client.AuthenticateAsync(_settings.Email, _settings.Password, cancellationToken);
 
             await client.SendAsync(message, cancellationToken);
             await client.DisconnectAsync(true, cancellationToken);
 
-            _logger.LogInformation("Email sent successfully to {Recipient}", recipient);
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {Recipient}", recipient);
-            return false;
+            var errorMessage = $"Не удалось доставить email получателю '{recipient}'";
+            throw new InternalServerException(errorMessage, ex.Message);
         }
     }
 
-    private MimeMessage CreateEmailMessage(string title, string content, string recipient, string subject)
+    private MimeMessage CreateEmailMessage(string title, string content, string recipient)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
+        message.From.Add(new MailboxAddress(_settings.SenderName, _settings.Email));
         message.To.Add(MailboxAddress.Parse(recipient));
-        message.Subject = subject ?? title;
+        message.Subject = title;
 
         var bodyBuilder = new BodyBuilder
         {
             HtmlBody = content,
-            TextBody = StripHtml(content) // Автоматически создаем текстовую версию
+            TextBody = content
         };
 
         message.Body = bodyBuilder.ToMessageBody();
         return message;
-    }
-
-    private string StripHtml(string html)
-    {
-        // Простая конвертация HTML в текст
-        return System.Text.RegularExpressions.Regex.Replace(html, "<[^>]*>", "");
     }
 
     private SecureSocketOptions GetSecureSocketOptions()
