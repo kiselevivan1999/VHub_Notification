@@ -25,6 +25,7 @@ services.AddCors(options =>
 });
 
 var app = builder.Build();
+
 await app.Services.MigrateDatabase();
 
 app.UseSwagger();
@@ -37,5 +38,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseKafkaBus(app.Lifetime);
 
 app.Run();
