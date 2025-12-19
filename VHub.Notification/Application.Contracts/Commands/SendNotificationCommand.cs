@@ -5,18 +5,18 @@ using MediatR;
 
 namespace Application.Contracts.Commands;
 
-public class SendNotificationCommand : IRequest<SendNotificationResponse>
+public class SendNotificationCommand : IRequest<List<SendNotificationResponse>>
 {
     public NotificationTypeEnum Type { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
-    public string Recipient { get; set; }
+    public IEnumerable<string> Recipients { get; set; }
 
     public SendNotificationCommand(SendNotificationRequest request)
     {
         Type = request.Type;
         Title = request.Title;
         Content = request.Content;
-        Recipient = request.Recipient;
+        Recipients = request.Recipients;
     }
 }

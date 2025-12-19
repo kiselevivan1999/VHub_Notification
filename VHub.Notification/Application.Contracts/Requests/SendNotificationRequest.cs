@@ -7,5 +7,5 @@ public class SendNotificationRequest
     public NotificationTypeEnum Type { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
-    public string Recipient { get; set; }
+    public IEnumerable<string> Recipients { get; set; }
 }

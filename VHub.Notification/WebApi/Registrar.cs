@@ -32,7 +32,7 @@ public static class Registrar
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
         });
-        services.AddScoped<IRequestHandler<SendNotificationCommand, SendNotificationResponse>, 
+        services.AddScoped<IRequestHandler<SendNotificationCommand, List<SendNotificationResponse>>, 
             SendNotificationCommandHandler>();
 
         services.AddScoped<INotificationStrategyFactory, NotificationStrategyFactory>();

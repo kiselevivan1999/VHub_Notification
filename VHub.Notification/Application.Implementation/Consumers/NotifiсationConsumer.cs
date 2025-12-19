@@ -12,7 +12,6 @@ namespace Application.Implementation.Consumers;
 
 public class NotifiсationConsumer : BackgroundService
 {
-    private readonly IMediator _mediator;
     private readonly IConfiguration _configuration;
     private readonly ILogger<NotifiсationConsumer> _logger;
     private readonly IServiceProvider _serviceProvider;
@@ -20,7 +19,6 @@ public class NotifiсationConsumer : BackgroundService
     public NotifiсationConsumer(IConfiguration configuration,
         ILogger<NotifiсationConsumer> logger, IServiceProvider serviceProvider) 
     {
-        //_mediator = mediator;
         _configuration = configuration;
         _logger = logger;
         _serviceProvider = serviceProvider;
@@ -28,6 +26,9 @@ public class NotifiсationConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        //Костыль. Без него не инициализируются контроллеры и api недоступно.
+        await Task.Delay(10000, stoppingToken);
+
         _logger.LogInformation("Старт обработки");
 
         var kafkaSection = _configuration.GetSection("Kafka");
@@ -78,9 +79,6 @@ public class NotifiсationConsumer : BackgroundService
                             nameof(SendNotificationRequest), json);
                         return;
                     }
-
-                    _logger.LogInformation("Обработка консьюмера " +
-                        "NotifiсationConsumer для получателя {Recipient}.", request.Recipient);
 
                     using var scope = _serviceProvider.CreateScope();
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();

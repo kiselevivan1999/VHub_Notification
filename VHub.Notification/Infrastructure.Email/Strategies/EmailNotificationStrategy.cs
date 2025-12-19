@@ -7,7 +7,6 @@ using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-
 namespace Infrastructure.Email.Strategies;
 
 public class EmailNotificationStrategy : IEmailNotificationStrategy
